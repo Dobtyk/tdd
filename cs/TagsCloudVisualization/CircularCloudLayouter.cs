@@ -4,16 +4,83 @@ namespace TagsCloudVisualization;
 
 public class CircularCloudLayouter
 {
-    private readonly List<Size> rectangles = [];
+    private readonly List<Rectangle> rectangles = [];
     private readonly ISpiral spiral;
+    private readonly Point center;
+ 
+    public IReadOnlyList<Rectangle> Rectangles => rectangles;
     
     public CircularCloudLayouter(Point center)
     {
-        throw new NotImplementedException();
+        spiral = new ArchimedeanSpiral(center);
+        this.center = center;
     }
 
     public Rectangle PutNextRectangle(Size rectangleSize)
     {
-        throw new NotImplementedException();
+        if (rectangleSize.Height <= 0 || rectangleSize.Width <= 0)
+        {
+            throw new ArgumentException("Received non-positive height or length, but expected positive");
+        }
+        
+        var point = spiral.GetNextPoint();
+        
+        while (rectangles.Any(x => x.Contains(point)))
+        {
+            point = spiral.GetNextPoint();
+        }
+        
+        var newRectangle = CreateRectangle(point, rectangleSize);
+        var intersectingRectangle = rectangles.FirstOrDefault(x => x.IntersectsWith(newRectangle));
+
+        if (rectangles.Count > 0)
+        {
+            while (intersectingRectangle.IsEmpty)
+            {
+                newRectangle = ShiftRectangleToCenter(newRectangle);
+                intersectingRectangle = rectangles.FirstOrDefault(x => x.IntersectsWith(newRectangle));
+            }
+        }
+        
+        while (!intersectingRectangle.IsEmpty)
+        {
+            newRectangle = ShiftRectangleFromCenter(newRectangle);
+            intersectingRectangle = rectangles.FirstOrDefault(x => x.IntersectsWith(newRectangle));
+        }
+
+        rectangles.Add(newRectangle);
+        
+        return newRectangle;
+    }
+
+    private Rectangle ShiftRectangleFromCenter(Rectangle rectangle)
+    {
+        var rectangleCenter = rectangle.GetCenter();
+        var offsetX = Math.Sign(rectangleCenter.X - center.X);
+        var offsetY = Math.Sign(rectangleCenter.Y - center.Y);
+        
+        rectangle.Offset(offsetX, offsetY);
+        
+        return rectangle;
+    }
+
+    private Rectangle ShiftRectangleToCenter(Rectangle rectangle)
+    {
+        var rectangleCenter = rectangle.GetCenter();
+        var offsetX = Math.Sign(center.X - rectangleCenter.X);
+        var offsetY = Math.Sign(center.Y - rectangleCenter.Y);
+        
+        rectangle.Offset(offsetX, offsetY);
+        
+        return rectangle;
+    }
+
+    private static Rectangle CreateRectangle(Point pointCenter, Size size)
+    {
+        return new Rectangle(
+            pointCenter.X - size.Width / 2,
+            pointCenter.Y - size.Height / 2,
+            size.Width,
+            size.Height);
     }
 }
