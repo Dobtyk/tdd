@@ -1,6 +1,8 @@
 ﻿using System.Drawing;
+using System.Runtime.Versioning;
 using FluentAssertions;
 using NUnit.Framework;
+using NUnit.Framework.Interfaces;
 
 namespace TagsCloudVisualization;
 
@@ -8,11 +10,33 @@ namespace TagsCloudVisualization;
 public class CircularCloudLayouterTests
 {
     private CircularCloudLayouter cloudLayouter;
+    private int imageSize;
     
     [SetUp]
     public void SetUp()
     {
-        cloudLayouter = new CircularCloudLayouter(new Point(100, 100));
+        cloudLayouter = new CircularCloudLayouter(new Point(500, 500));
+        imageSize = 1000;
+    }
+    
+    [SupportedOSPlatform("Windows")]
+    [TearDown]
+    public void TearDown()
+    {
+        if (TestContext.CurrentContext.Result.Outcome.Status == TestStatus.Failed)
+        {
+            var desktopPath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+            var fileName = $"{TestContext.CurrentContext.Test.Name}.png";
+            var imagesDirectory = Path.Combine(desktopPath, "Images failed tests");
+            
+            Directory.CreateDirectory(imagesDirectory);
+
+            var filePath = Path.Combine(imagesDirectory, fileName);
+            
+            Visualizer.GenerateImageFromCircularCloudLayouter(imageSize, filePath, cloudLayouter);
+            
+            Console.WriteLine($"Tag cloud visualization saved to file {filePath}");
+        }
     }
     
     [TestCaseSource(nameof(CasesWhenInvalidSize))]

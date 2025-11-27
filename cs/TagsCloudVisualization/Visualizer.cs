@@ -1,24 +1,28 @@
 ﻿using System.Drawing;
 using System.Runtime.Versioning;
-using TagsCloudVisualization;
 
-namespace CircularCloudLayoutVisualization;
+namespace TagsCloudVisualization;
 
-class Program
+public class Visualizer
 {
     [SupportedOSPlatform("Windows")]
-    private static void Main()
+    public static void GenerateImageFromCircularCloudLayouter(int imageSize, string filePath, CircularCloudLayouter circularCloudLayouter)
     {
-        var imageSize = 1000;
-        var spiralStep = Math.PI / 180;
-        var spiralParameterA = 0.1f;
-        GenerateImageCloudLayouter(imageSize, "Cloud-1.png", spiralStep, spiralParameterA);
-        GenerateImageCloudLayouter(imageSize, "Cloud-2.png", spiralStep, spiralParameterA);
-        GenerateImageCloudLayouter(imageSize, "Cloud-3.png", spiralStep, spiralParameterA);
+        using var bitmap = new Bitmap(imageSize, imageSize);
+        using var graphics = Graphics.FromImage(bitmap);
+        using var pen = new Pen(Color.Black, 1);
+        
+        graphics.Clear(Color.White);
+        
+        foreach (var rectangle in circularCloudLayouter.Rectangles)
+        {
+            graphics.DrawRectangle(pen, rectangle);
+        }
+        
+        bitmap.Save(filePath);
     }
-
     [SupportedOSPlatform("Windows")]
-    private static void GenerateImageCloudLayouter(int imageSize, string fileName, double step, double parameterA)
+    public static void GenerateImageCloudLayouter(int imageSize, string fileName, double step, double parameterA)
     {
         var spiral = new ArchimedeanSpiral(new Point(imageSize / 2, imageSize / 2), step, parameterA);
         var circularCloudLayouter = GenerateCloudLayouterWithRectangles(imageSize, spiral);
@@ -33,8 +37,9 @@ class Program
             graphics.DrawRectangle(pen, rectangle);
         }
         
-        var projectDirectory = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", ".."));
-        var imagesDirectory = Path.Combine(projectDirectory, "Images");
+        var desktopPath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+        var imagesDirectory = Path.Combine(desktopPath, "Images");
+        
         Directory.CreateDirectory(imagesDirectory);
 
         var filePath = Path.Combine(imagesDirectory, fileName);

@@ -96,10 +96,6 @@ public class CircularCloudLayouter
 
     private static Rectangle CreateRectangle(Point pointCenter, Size size)
     {
-        return new Rectangle(
-            pointCenter.X - size.Width / 2,
-            pointCenter.Y - size.Height / 2,
-            size.Width,
-            size.Height);
+        return new Rectangle(pointCenter.X - size.Width / 2, pointCenter.Y - size.Height / 2, size.Width, size.Height);
     }
 }
