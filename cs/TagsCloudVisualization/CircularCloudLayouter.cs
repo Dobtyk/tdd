@@ -5,8 +5,8 @@ namespace TagsCloudVisualization;
 public class CircularCloudLayouter
 {
     private readonly List<Rectangle> rectangles = [];
-    private readonly ISpiral spiral;
     private readonly Point center;
+    private ISpiral spiral;
  
     public IReadOnlyList<Rectangle> Rectangles => rectangles;
     
@@ -23,16 +23,9 @@ public class CircularCloudLayouter
             throw new ArgumentException("Received non-positive height or length, but expected positive");
         }
         
-        var point = spiral.GetNextPoint();
-        
-        while (rectangles.Any(x => x.Contains(point)))
-        {
-            point = spiral.GetNextPoint();
-        }
-        
-        var newRectangle = CreateRectangle(point, rectangleSize);
+        var newRectangle = CreateRectangleAtSuitablePointOnSpiral(rectangleSize);
         var intersectingRectangle = rectangles.FirstOrDefault(x => x.IntersectsWith(newRectangle));
-
+        
         if (rectangles.Count > 0)
         {
             while (intersectingRectangle.IsEmpty)
@@ -50,6 +43,32 @@ public class CircularCloudLayouter
 
         rectangles.Add(newRectangle);
         
+        return newRectangle;
+    }
+    
+    public void SetNewSpiral(ISpiral newSpiral)
+    {
+        spiral = newSpiral;
+    }
+
+    private Rectangle CreateRectangleAtSuitablePointOnSpiral(Size rectangleSize)
+    {
+        var point = spiral.GetNextPoint();
+        
+        while (rectangles.Any(x => x.Contains(point)))
+        {
+            point = spiral.GetNextPoint();
+        }
+        
+        var newRectangle = CreateRectangle(point, rectangleSize);
+        var intersectingRectangle = rectangles.FirstOrDefault(x => x.IntersectsWith(newRectangle));
+
+        while (!intersectingRectangle.IsEmpty)
+        {
+            newRectangle = CreateRectangle(spiral.GetNextPoint(), rectangleSize);
+            intersectingRectangle = rectangles.FirstOrDefault(x => x.IntersectsWith(newRectangle));
+        }
+
         return newRectangle;
     }
 

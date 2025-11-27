@@ -81,6 +81,5 @@ public class CircularCloudLayouterTests
             var height = random.Next(1, 101);
             yield return new TestCaseData(new Size(width, height));
         }
-
     }
 }

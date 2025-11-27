@@ -8,7 +8,8 @@ public class ArchimedeanSpiral : ISpiral
     private const double defaultStep = Math.PI / 4;
     private const double defaultParameterA = 1;
     private IEnumerator<Point> enumerator;
-    
+
+    /// <param name="parameterA">The larger this parameter, the greater the distance between the turns of the spiral, and vice versa.</param>
     public ArchimedeanSpiral(Point center = default, double step = defaultStep, double parameterA = defaultParameterA)
     {
         enumerator = GenerateArchimedeanSpiral(center, step, parameterA).GetEnumerator();
