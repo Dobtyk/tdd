@@ -11,4 +11,17 @@ public static class RectangleExtensions
         
         return new PointF(rectangleCenterX, rectangleCenterY);
     }
+    
+    public static bool IsRectanglesIntersect(this Rectangle rectangle, Point centerSize, Size size)
+    {
+        var left = centerSize.X - size.Width / 2;
+        var top = centerSize.Y - size.Height / 2;
+        var right = left + size.Width;
+        var bottom = top + size.Height;
+
+        return !(rectangle.Right < left  ||
+                 rectangle.Bottom < top  ||
+                 rectangle.Left > right  ||
+                 rectangle.Top > bottom);
+    }
 }

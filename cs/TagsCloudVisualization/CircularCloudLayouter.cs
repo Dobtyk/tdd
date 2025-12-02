@@ -2,19 +2,12 @@
 
 namespace TagsCloudVisualization;
 
-public class CircularCloudLayouter
+public class CircularCloudLayouter(Point center)
 {
     private readonly List<Rectangle> rectangles = [];
-    private readonly Point center;
-    private ISpiral spiral;
+    private ISpiral spiral = new ArchimedeanSpiral(center);
  
     public IReadOnlyList<Rectangle> Rectangles => rectangles;
-    
-    public CircularCloudLayouter(Point center)
-    {
-        spiral = new ArchimedeanSpiral(center);
-        this.center = center;
-    }
 
     public Rectangle PutNextRectangle(Size rectangleSize)
     {
@@ -59,17 +52,13 @@ public class CircularCloudLayouter
         {
             point = spiral.GetNextPoint();
         }
-        
-        var newRectangle = CreateRectangle(point, rectangleSize);
-        var intersectingRectangle = rectangles.FirstOrDefault(x => x.IntersectsWith(newRectangle));
 
-        while (!intersectingRectangle.IsEmpty)
+        while (rectangles.Any(x => x.IsRectanglesIntersect(point, rectangleSize)))
         {
-            newRectangle = CreateRectangle(spiral.GetNextPoint(), rectangleSize);
-            intersectingRectangle = rectangles.FirstOrDefault(x => x.IntersectsWith(newRectangle));
+            point = spiral.GetNextPoint();
         }
-
-        return newRectangle;
+        
+        return CreateRectangle(point, rectangleSize);
     }
 
     private Rectangle ShiftRectangleFromCenter(Rectangle rectangle)
