@@ -5,6 +5,7 @@ namespace TagsCloudVisualization;
 public class CircularCloudLayouter(Point center)
 {
     private readonly List<Rectangle> rectangles = [];
+    private readonly HashSet<Point> freePointsSpiral = [];
     private ISpiral spiral = new ArchimedeanSpiral(center);
  
     public IReadOnlyList<Rectangle> Rectangles => rectangles;
@@ -47,6 +48,11 @@ public class CircularCloudLayouter(Point center)
     private Rectangle CreateRectangleAtSuitablePointOnSpiral(Size rectangleSize)
     {
         var point = spiral.GetNextPoint();
+
+        if (TryRectangleOnFreePointSpiral(rectangleSize, out var rectangle))
+        {
+            return rectangle;
+        }
         
         while (rectangles.Any(x => x.Contains(point)))
         {
@@ -55,10 +61,38 @@ public class CircularCloudLayouter(Point center)
 
         while (rectangles.Any(x => x.IsRectanglesIntersect(point, rectangleSize)))
         {
+            freePointsSpiral.Add(point);
             point = spiral.GetNextPoint();
         }
         
         return CreateRectangle(point, rectangleSize);
+    }
+
+    private bool TryRectangleOnFreePointSpiral(Size rectangleSize, out Rectangle rectangle)
+    {
+        var occupiedPoints = new HashSet<Point>();
+        
+        foreach (var point in freePointsSpiral)
+        {
+            if (rectangles.Any(x => x.Contains(point)))
+            {
+                occupiedPoints.Add(point);
+                continue;
+            }
+
+            if (rectangles.Any(x => x.IsRectanglesIntersect(point, rectangleSize)))
+            {
+                continue;
+            }
+            
+            occupiedPoints.Add(point);
+            freePointsSpiral.ExceptWith(occupiedPoints);
+            rectangle = CreateRectangle(point, rectangleSize);
+            return true;
+        }
+
+        rectangle = Rectangle.Empty;
+        return false;
     }
 
     private Rectangle ShiftRectangleFromCenter(Rectangle rectangle)
