@@ -5,10 +5,11 @@ namespace TagsCloudVisualization;
 public class CircularCloudLayouter(Point center)
 {
     private readonly List<Rectangle> rectangles = [];
-    private readonly HashSet<Point> freePointsSpiral = [];
+    private readonly List<Point> freePointsSpiral = [];
     private ISpiral spiral = new ArchimedeanSpiral(center);
  
     public IReadOnlyList<Rectangle> Rectangles => rectangles;
+    public Point Center => center;
 
     public Rectangle PutNextRectangle(Size rectangleSize)
     {
@@ -86,7 +87,7 @@ public class CircularCloudLayouter(Point center)
             }
             
             occupiedPoints.Add(point);
-            freePointsSpiral.ExceptWith(occupiedPoints);
+            freePointsSpiral.RemoveAll(x => occupiedPoints.Contains(x));
             rectangle = CreateRectangle(point, rectangleSize);
             return true;
         }

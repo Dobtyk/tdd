@@ -8,35 +8,18 @@ public class Visualizer
     [SupportedOSPlatform("Windows")]
     public static void GenerateImageFromCircularCloudLayouter(int imageSize, string filePath, CircularCloudLayouter circularCloudLayouter)
     {
-        using var bitmap = new Bitmap(imageSize, imageSize);
-        using var graphics = Graphics.FromImage(bitmap);
-        using var pen = new Pen(Color.Black, 1);
-        
-        graphics.Clear(Color.White);
-        
-        foreach (var rectangle in circularCloudLayouter.Rectangles)
-        {
-            graphics.DrawRectangle(pen, rectangle);
-        }
+        using var bitmap = PaintImage(imageSize, circularCloudLayouter);
         
         bitmap.Save(filePath);
     }
+    
     [SupportedOSPlatform("Windows")]
     public static void GenerateImageCloudLayouter(int imageSize, string fileName, double step, double parameterA)
     {
         var spiral = new ArchimedeanSpiral(new Point(imageSize / 2, imageSize / 2), step, parameterA);
         var circularCloudLayouter = GenerateCloudLayouterWithRectangles(imageSize, spiral);
-        using var bitmap = new Bitmap(imageSize, imageSize);
-        using var graphics = Graphics.FromImage(bitmap);
-        using var pen = new Pen(Color.Black, 1);
-        
-        graphics.Clear(Color.White);
-        
-        foreach (var rectangle in circularCloudLayouter.Rectangles)
-        {
-            graphics.DrawRectangle(pen, rectangle);
-        }
-        
+        using var bitmap = PaintImage(imageSize, circularCloudLayouter);
+
         var desktopPath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
         var imagesDirectory = Path.Combine(desktopPath, "Images");
         
@@ -45,7 +28,30 @@ public class Visualizer
         var filePath = Path.Combine(imagesDirectory, fileName);
         bitmap.Save(filePath);
     }
+
+    [SupportedOSPlatform("Windows")]
+    private static Bitmap PaintImage(int imageSize, CircularCloudLayouter circularCloudLayouter)
+    {
+        var bitmap = new Bitmap(imageSize, imageSize);
+        using var graphics = Graphics.FromImage(bitmap);
+        
+        graphics.Clear(Color.White);
+        
+        using var penForPointCenter = new Pen(Color.Blue, 2);
+        var radius = 1;
+        
+        graphics.DrawEllipse(penForPointCenter, circularCloudLayouter.Center.X - radius, circularCloudLayouter.Center.Y - radius, radius * 2, radius * 2);
     
+        using var pen = new Pen(Color.Black, 1);
+        
+        foreach (var rectangle in circularCloudLayouter.Rectangles)
+        {
+            graphics.DrawRectangle(pen, rectangle);
+        }
+
+        return bitmap;
+    }
+
     private static CircularCloudLayouter GenerateCloudLayouterWithRectangles(int imageSize, ISpiral spiral)
     {
         var circularCloudLayouter = new CircularCloudLayouter(new Point(imageSize /2, imageSize / 2));
