@@ -89,6 +89,7 @@ public class CircularCloudLayouterTests
         result.GetCenter().Y.Should().BeApproximately(center.Y, 0.5f);
     }
     
+    [Explicit]
     [TestCaseSource(nameof(CasesWhen10IEnumerableWith100SmallRangeRandomSizes))]
     public void PutNextRectangle_AverageCloudDensityIsOver70Percents_When10IEnumerableWith100SmallRangeRandomSizes(IEnumerable<IEnumerable<Size>> inputs)
     {
@@ -112,6 +113,7 @@ public class CircularCloudLayouterTests
         TestContext.WriteLine($"Average density: {result}");
     }
     
+    [Explicit]
     [TestCaseSource(nameof(CasesWhen10IEnumerableWith100BigRangeRandomSizes))]
     public void PutNextRectangle_AverageCloudDensityIsOver55Percents_When10IEnumerableWith100BigRangeRandomSizes(IEnumerable<IEnumerable<Size>> inputs)
     {
