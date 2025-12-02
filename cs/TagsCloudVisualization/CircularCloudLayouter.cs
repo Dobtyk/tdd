@@ -30,10 +30,9 @@ public class CircularCloudLayouter(Point center)
             }
         }
         
-        while (!intersectingRectangle.IsEmpty)
+        if (!intersectingRectangle.IsEmpty)
         {
             newRectangle = ShiftRectangleFromCenter(newRectangle);
-            intersectingRectangle = rectangles.FirstOrDefault(x => x.IntersectsWith(newRectangle));
         }
 
         rectangles.Add(newRectangle);
